@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc libserial_t.a CMakeFiles/serial_t.dir/window.cc.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib libserial_t.a
