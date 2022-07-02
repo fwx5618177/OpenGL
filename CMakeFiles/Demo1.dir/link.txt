@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/Demo1.dir/main.cc.o CMakeFiles/Demo1.dir/src/glad.c.o -o Demo1   -L/usr/local/Cellar/glfw/3.3.4/lib  -Wl,-rpath,/usr/local/Cellar/glfw/3.3.4/lib -lglfw 
