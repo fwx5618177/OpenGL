@@ -1,36 +1,60 @@
-# CMake 最低版本号要求
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
-# 项目信息
-project (AircraftWar)
+project(AirCrafts)
 
-# 查找当前目录下的所有源文件
-# 并将名称保存到 DIR_SRCS 变量
-aux_source_directory(. DIR_SRCS)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+set(CMAKE_SUPPRESS_REGENERATION ON)
 
-include_directories(/usr/local/Cellar/glfw/3.3.4/include) #添加头文件目径
-link_directories(/usr/local/Cellar/glfw/3.3.4/lib) #添加链接库路径
-include_directories(/usr/local/Cellar/glad/include) #添加头文件
-include_directories(${PROJECT_SOURCE_DIR}/src)
+option(GLFW_BUILD_DOCS OFF)
+option(GLFW_BUILD_EXAMPLES OFF)
+option(GLFW_BUILD_TESTS OFF)
+option(GLFW_INSTALL OFF)
 
-add_subdirectory(src)
+# 子目录
+add_subdirectory(external/glfw)
 
-# 指定生成目标
-set(SOURCE main.cc include/glad.c)
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++11")
+    
+    if(NOT WIN32)
+        set(GLAD_LIBRARIES dl)
+    endif()
+endif()
 
-# 非静态库
-add_executable(${PROJECT_NAME} ${SOURCE} ${SRC_LIST})
-target_link_libraries(${PROJECT_NAME} libglfw.dylib)
+# 引入头文件
+include_directories(include/
+    external/glad/include/
+    external/glfw/include/
+    external/stb/
+)
 
-# 静态库
-# add_executable(${PROJECT_NAME} ${SOURCE} ${SRC_LIST})
-# set(LIBLISTS serial_t)
-# target_link_libraries(${PROJECT_NAME} ${LIBLISTS})
+file(GLOB EXTERNAL_SOURCES external/glad/src/glad.c
+                            external/stb/stb.image.cpp)
+file(GLOB PROJECT_HEADERS include/*.h)
+file(GLOB PROJECT_SOURCES src/*.cc)
 
+source_group("Headers" FILES ${PROJECT_HEADERS})
+source_group("Sources" FILES ${PROJECT_SOURCES})
+source_group("Externals" FILES ${EXTERNAL_SOURCES})
+
+add_definitions(-DGLFW_INCLUDE_NONE
+                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
+
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
+                ${EXTERNAL_SOURCES})
+
+target_link_libraries(${PROJECT_NAME} glfw 
+            ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_Debug
+            RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_Release)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
-# 调试信息
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
-
+if(MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES 
+        VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endif()

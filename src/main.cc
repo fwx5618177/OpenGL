@@ -1,6 +1,5 @@
-#include "./src/window.h"
+#include <window.h>
 #include <iostream>
-
 
 int main()
 {
